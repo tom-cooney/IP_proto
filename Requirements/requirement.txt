@@ -1,0 +1,5 @@
+numpy
+json
+fiona
+rasterio
+gdal
