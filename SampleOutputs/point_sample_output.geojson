@@ -1,0 +1,79 @@
+{
+  "metadata": [
+    {
+      "Temporal Resolution": "1",
+      "Temporal Units": "1",
+      "Temperature Units": "degrees C",
+      "Wind Direction Units": "Wind direction (from which blowing) [deg true]",
+      "Wind Speed Units": "m/s"
+    }
+  ],
+  "features": [
+    {
+      "geometry": [
+        100.0,
+        0.5
+      ]
+    }
+  ],
+  "Temperature Data": [
+    [
+      {
+        "Forecast Hour": "2020-08-09T06:00:00Z",
+        "Temperature Observation": 29.249169921875023
+      }
+    ],
+    [
+      {
+        "Forecast Hour": "2020-08-09T09:00:00Z",
+        "Temperature Observation": 29.180047607421898
+      }
+    ],
+    [
+      {
+        "Forecast Hour": "2020-08-09T12:00:00Z",
+        "Temperature Observation": 22.740441894531273
+      }
+    ]
+  ],
+  "Wind Direction Data": [
+    [
+      {
+        "Forecast Hour": "2020-08-09T06:00:00Z",
+        "Wind Direction Observation": 68.0
+      }
+    ],
+    [
+      {
+        "Forecast Hour": "2020-08-09T09:00:00Z",
+        "Wind Direction Observation": 256.5
+      }
+    ],
+    [
+      {
+        "Forecast Hour": "2020-08-09T12:00:00Z",
+        "Wind Direction Observation": 290.0000915527344
+      }
+    ]
+  ],
+  "Wind Speed Data": [
+    [
+      {
+        "Forecast Hour": "2020-08-09T06:00:00Z",
+        "Wind Speed Observation": 0.40302011370658875
+      }
+    ],
+    [
+      {
+        "Forecast Hour": "2020-08-09T09:00:00Z",
+        "Wind Speed Observation": 0.8027960062026978
+      }
+    ],
+    [
+      {
+        "Forecast Hour": "2020-08-09T12:00:00Z",
+        "Wind Speed Observation": 0.6527763605117798
+      }
+    ]
+  ]
+}
