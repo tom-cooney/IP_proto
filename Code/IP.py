@@ -27,8 +27,17 @@ OUTDATA['metadata'].append({
     "Wind Speed Units": "m/s"
 })
 
+def reproject(x, y, inputSRS_wkt):
+    #reproject the point
+    srs = osr.SpatialReference()
+    srs.ImportFromWkt(inputSRS_wkt)
+    #assume all geojson inputs have crs epsg:4326
+    transformer = Transformer.from_crs("epsg:4326", srs.ExportToProj4())
+    _x, _y = transformer.transform(x, y)
+    return [_x, _y]
+
 def reprojectLine(geojson_path, raster_path):
-    toReturn = []
+    to_return = []
     #get wkt projection definition from grib
     ds = gdal.Open(raster_path)
     inputSRS_wkt = ds.GetProjection()
@@ -44,19 +53,12 @@ def reprojectLine(geojson_path, raster_path):
             x = point[1]
             y = point[0]
 
-            #reproject the point
-            srs = osr.SpatialReference()
-            srs.ImportFromWkt(inputSRS_wkt)
-            #assume all geojson inputs have crs epsg:4326
-            transformer = Transformer.from_crs("epsg:4326", srs.ExportToProj4())
-            _x, _y = transformer.transform(x, y)
-
-            toReturn.append([_x, _y])
-    return toReturn
+            to_return.append(reproject(x, y, inputSRS_wkt))
+    return to_return
 
 def reprojectPoly(geojson_path, raster_path):
     ret = []
-    toReturn = []
+    to_return = []
     #get wkt projection definition from grib
     ds = gdal.Open(raster_path)
     inputSRS_wkt = ds.GetProjection()
@@ -73,20 +75,13 @@ def reprojectPoly(geojson_path, raster_path):
                 x = gj['features'][geom]['geometry']['coordinates'][line][point][1]
                 y = gj['features'][geom]['geometry']['coordinates'][line][point][0]
 
-                #reproject the point
-                srs = osr.SpatialReference()
-                srs.ImportFromWkt(inputSRS_wkt)
-                #assume all geojson inputs have crs epsg:4326
-                transformer = Transformer.from_crs("epsg:4326", srs.ExportToProj4())
-                _x, _y = transformer.transform(x, y)
-
-                ret.append([_x, _y])
-    toReturn.append(ret)
-    return toReturn
+                ret.append(reproject(x, y, inputSRS_wkt))
+    to_return.append(ret)
+    return to_return
     
 #get the value at a specific input point in a point query
 def getPoint(raster_list, geoJSON_path):
-    toReturn = {}
+    to_return = {}
     i = 0
     
     for raster_path in raster_list:
@@ -95,11 +90,11 @@ def getPoint(raster_list, geoJSON_path):
         
         #setup and initialize vars for differentiating between temp, wdir, wspeed queries
         if "TMP" in raster_path:
-            dataType = "Temperature Data"
+            data_type = "Temperature Data"
         if "WDIR" in raster_path:
-            dataType = "Wind Direction Data"
+            data_type = "Wind Direction Data"
         if "WIND" in raster_path:
-            dataType = "Wind Speed Data"
+            data_type = "Wind Speed Data"
         
         #get inital lat/long coordinates
         x = coords[0][0]
@@ -116,29 +111,29 @@ def getPoint(raster_list, geoJSON_path):
         y = int((y - origin_y) / height)        
         band = ds.GetRasterBand(1)
         arr = band.ReadAsArray()
-        toReturn[i] = [coords[0][0], coords[0][1], arr[y][x], dataType]
+        to_return[i] = [coords[0][0], coords[0][1], arr[y][x], data_type]
         i += 1
         
-    return toReturn
+    return to_return
 
 #get the values along an input line in a line query
 def getLine(raster_list, geoJSON_path):
-    toReturn = {}
+    to_return = {}
     i = 0
     with open(geoJSON_path) as f:
         gj = json.load(f)
-    inputLine = gj['features'][0]['geometry']['coordinates']    
-    inputLine = str(inputLine)
-    inputLine = inputLine.replace(" ", "")
+    input_line = gj['features'][0]['geometry']['coordinates']    
+    input_line = str(input_line)
+    input_line = input_line.replace(" ", "")
     
     for raster_path in raster_list:        
         #setup and initialize vars for differentiating between temp, wdir, wspeed queries
         if "TMP" in raster_path:
-            dataType = "Temperature Data"
+            data_type = "Temperature Data"
         if "WDIR" in raster_path:
-            dataType = "Wind Direction Data"
+            data_type = "Wind Direction Data"
         if "WIND" in raster_path:
-            dataType = "Wind Speed Data"
+            data_type = "Wind Speed Data"
     
         #Open Raster
         with rasterio.open(raster_path) as src:
@@ -161,23 +156,23 @@ def getLine(raster_list, geoJSON_path):
                     ds = dataset.read()
                     #remove the zero values from the bounding box surrounding the line in the raster
                     ds = ds[ds!=0]
-                    toReturn[i] = [ds, dataType, inputLine]
+                    to_return[i] = [ds, data_type, input_line]
                     i += 1
         
-    return toReturn
+    return to_return
 
 #get the summary statistics for an input polygon in polygon queries    
 def summStatsPoly(raster_list, geoJSON_path):
     #setup returns
-    toReturn = {}
+    to_return = {}
     i = 0
     for raster_path in raster_list:
         if "TMP" in raster_path:
-            dataType = "Temperature Data"
+            data_type = "Temperature Data"
         if "WDIR" in raster_path:
-            dataType = "Wind Direction Data"
+            data_type = "Wind Direction Data"
         if "WIND" in raster_path:
-            dataType = "Wind Speed Data"
+            data_type = "Wind Speed Data"
         
         #Open Raster
         with rasterio.open(raster_path) as src:
@@ -199,28 +194,28 @@ def summStatsPoly(raster_list, geoJSON_path):
                     #read the clipped raster from memory
                     ds = dataset.read()
                     #create summary stats
-                    minVal = np.min(ds, axis = None)
-                    maxVal = np.max(ds, axis = None)
-                    meanVal = np.mean(ds, axis = None)
-                    toReturn[i] = [minVal, maxVal, meanVal, dataType]
+                    min_val = np.min(ds, axis = None)
+                    max_val = np.max(ds, axis = None)
+                    mean_val = np.mean(ds, axis = None)
+                    to_return[i] = [min_val, max_val, mean_val, data_type]
                     i += 1
-    return toReturn
+    return to_return
         
-def polyOut(stringName, forecast_hour, value):
-    toReturn = []
-    toReturn.append({
+def polyOut(string_name, forecast_hour, value):
+    to_return = []
+    to_return.append({
         'Forecast Hour': forecast_hour,
-        stringName: value
+        string_name: value
     })
-    return toReturn
+    return to_return
 
-def pointOut(stringName, forecast_hour, key):
-    toReturn = []
-    toReturn.append({
+def pointOut(string_name, forecast_hour, key):
+    to_return = []
+    to_return.append({
         "Forecast Hour": forecast_hour,
-        stringName: key
+        string_name: key
             })
-    return toReturn
+    return to_return
 
 def writeOutput(features, forecast_hours, poly, line, point):
     #initalize dictionary to return and generic metadata
@@ -326,13 +321,13 @@ if __name__ == '__main__':
     with open(sys.argv[1]) as f:
         result = json.load(f)
     
-    gribPaths = []
+    raster_list = []
     forecast_hours = []
     for element in result:
-        gribPaths.append(element["filepath"])
+        raster_list.append(element["filepath"])
         forecast_hours.append(element["forecast_hour"])
     #get polygon/line/point to clip
-    geoJSONPath = sys.argv[2]
+    geoJSON_path = sys.argv[2]
     
     #setup variables for differentiating between point, line, polygon calls and other needed vars
     features = []
@@ -341,20 +336,20 @@ if __name__ == '__main__':
     point = False
     
     #determine the query type between point, line, polygon and call the appropriate function 
-    with open(geoJSONPath) as f:
+    with open(geoJSON_path) as f:
         indata = json.load(f)
     for feature in indata['features']:
         if feature['geometry']['type'] == "Polygon" or feature['geometry']['type'] == "MultiPolygon":
             poly = True
-            features.append(summStatsPoly(gribPaths, geoJSONPath))
+            features.append(summStatsPoly(raster_list, geoJSON_path))
             break
         elif feature['geometry']['type'] == "LineString" or feature['geometry']['type'] == "MultiLineString":
             line = True
-            features.append(getLine(gribPaths, geoJSONPath))
+            features.append(getLine(raster_list, geoJSON_path))
             break
         elif feature['geometry']['type'] == "Point" or feature['geometry']['type'] == "MultiPoint":
             point = True
-            features.append(getPoint(gribPaths, geoJSONPath))
+            features.append(getPoint(raster_list, geoJSON_path))
     
     #after putting necessary data in features call the writing output file function
     writeOutput(features, forecast_hours, poly, line, point)
