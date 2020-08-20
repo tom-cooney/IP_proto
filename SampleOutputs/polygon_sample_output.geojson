@@ -1,0 +1,196 @@
+{
+  "metadata": [
+    {
+      "Temporal Resolution": "1",
+      "Temporal Units": "1",
+      "Temperature Units": "degrees C",
+      "Wind Direction Units": "Wind direction (from which blowing) [deg true]",
+      "Wind Speed Units": "m/s"
+    }
+  ],
+  "features": [
+    {
+      "geometry": null
+    }
+  ],
+  "Min Temperature Data": [
+    [
+      {
+        "Forecast Hour": "2020-08-09T06:00:00Z",
+        "Min Temperature": 0.0
+      }
+    ],
+    [
+      {
+        "Forecast Hour": "2020-08-09T09:00:00Z",
+        "Min Temperature": 0.0
+      }
+    ],
+    [
+      {
+        "Forecast Hour": "2020-08-09T12:00:00Z",
+        "Min Temperature": 0.0
+      }
+    ]
+  ],
+  "Max Temperature Data": [
+    [
+      {
+        "Forecast Hour": "2020-08-09T06:00:00Z",
+        "Max Temperature": 35.2991882324219
+      }
+    ],
+    [
+      {
+        "Forecast Hour": "2020-08-09T09:00:00Z",
+        "Max Temperature": 35.88002929687502
+      }
+    ],
+    [
+      {
+        "Forecast Hour": "2020-08-09T12:00:00Z",
+        "Max Temperature": 32.5904479980469
+      }
+    ]
+  ],
+  "Mean Temperature Data": [
+    [
+      {
+        "Forecast Hour": "2020-08-09T06:00:00Z",
+        "Mean Temperature": 27.966244942801357
+      }
+    ],
+    [
+      {
+        "Forecast Hour": "2020-08-09T09:00:00Z",
+        "Mean Temperature": 28.65306429181782
+      }
+    ],
+    [
+      {
+        "Forecast Hour": "2020-08-09T12:00:00Z",
+        "Mean Temperature": 23.548773738316147
+      }
+    ]
+  ],
+  "Min Wind Direction Data": [
+    [
+      {
+        "Forecast Hour": "2020-08-09T06:00:00Z",
+        "Min Wind Direction": 0.0
+      }
+    ],
+    [
+      {
+        "Forecast Hour": "2020-08-09T09:00:00Z",
+        "Min Wind Direction": 0.0
+      }
+    ],
+    [
+      {
+        "Forecast Hour": "2020-08-09T12:00:00Z",
+        "Min Wind Direction": 0.0
+      }
+    ]
+  ],
+  "Max Wind Direction Data": [
+    [
+      {
+        "Forecast Hour": "2020-08-09T06:00:00Z",
+        "Max Wind Direction": 357.5
+      }
+    ],
+    [
+      {
+        "Forecast Hour": "2020-08-09T09:00:00Z",
+        "Max Wind Direction": 354.0
+      }
+    ],
+    [
+      {
+        "Forecast Hour": "2020-08-09T12:00:00Z",
+        "Max Wind Direction": 333.0000915527344
+      }
+    ]
+  ],
+  "Mean Wind Direction Data": [
+    [
+      {
+        "Forecast Hour": "2020-08-09T06:00:00Z",
+        "Mean Wind Direction": 102.76785714285714
+      }
+    ],
+    [
+      {
+        "Forecast Hour": "2020-08-09T09:00:00Z",
+        "Mean Wind Direction": 166.36607142857142
+      }
+    ],
+    [
+      {
+        "Forecast Hour": "2020-08-09T12:00:00Z",
+        "Mean Wind Direction": 181.07150868007116
+      }
+    ]
+  ],
+  "Min Wind Speed Data": [
+    [
+      {
+        "Forecast Hour": "2020-08-09T06:00:00Z",
+        "Min Wind Speed": 0.0
+      }
+    ],
+    [
+      {
+        "Forecast Hour": "2020-08-09T09:00:00Z",
+        "Min Wind Speed": 0.0
+      }
+    ],
+    [
+      {
+        "Forecast Hour": "2020-08-09T12:00:00Z",
+        "Min Wind Speed": 0.0
+      }
+    ]
+  ],
+  "Max Wind Speed Data": [
+    [
+      {
+        "Forecast Hour": "2020-08-09T06:00:00Z",
+        "Miax Wind Speed": 2.5030200481414795
+      }
+    ],
+    [
+      {
+        "Forecast Hour": "2020-08-09T09:00:00Z",
+        "Miax Wind Speed": 2.252795934677124
+      }
+    ],
+    [
+      {
+        "Forecast Hour": "2020-08-09T12:00:00Z",
+        "Miax Wind Speed": 4.002776622772217
+      }
+    ]
+  ],
+  "Mean Wind Speed Data": [
+    [
+      {
+        "Forecast Hour": "2020-08-09T06:00:00Z",
+        "Mean Wind Speed": 0.8053211708153997
+      }
+    ],
+    [
+      {
+        "Forecast Hour": "2020-08-09T09:00:00Z",
+        "Mean Wind Speed": 0.9185179115406105
+      }
+    ],
+    [
+      {
+        "Forecast Hour": "2020-08-09T12:00:00Z",
+        "Mean Wind Speed": 1.5693936169679676
+      }
+    ]
+  ]
+}
