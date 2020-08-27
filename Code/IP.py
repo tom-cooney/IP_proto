@@ -1,6 +1,3 @@
-
-
-
 import json
 import os
 import re
@@ -77,9 +74,11 @@ def reprojectPoly(geojson_path, raster_path):
                 #get the point
                 x = gj['features'][geom]['geometry']['coordinates'][line][point][1]
                 y = gj['features'][geom]['geometry']['coordinates'][line][point][0]
+                print("x, y before: ", x, y)
 
                 ret.append(reproject(x, y, inputSRS_wkt))
     to_return.append(ret)
+    print("to_return: ", to_return)
     return to_return
     
 #get the value at a specific input point in a point query
@@ -185,6 +184,7 @@ def summStatsPoly(raster_list, geoJSON_path):
                 'type': 'Polygon',
                 'coordinates': reprojectPoly(geoJSON_path, raster_path)
             })
+            print("shapes: ", shapes)
             #Clip the raster
             out_image, out_transform = rasterio.mask.mask(src, shapes, crop=True)
             out_meta = src.meta
