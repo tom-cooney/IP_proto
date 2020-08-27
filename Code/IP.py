@@ -35,7 +35,9 @@ def reproject(x, y, inputSRS_wkt):
     srs = osr.SpatialReference()
     srs.ImportFromWkt(inputSRS_wkt)
     #assume all geojson inputs have crs epsg:4326
+    print("proj4", srs.ExportToProj4())
     transformer = Transformer.from_crs("epsg:4326", srs.ExportToProj4())
+    print("transform", transformer)
     _x, _y = transformer.transform(x, y)
     return [_x, _y]
 
@@ -57,7 +59,7 @@ def reprojectLine(geojson_path, raster_path):
             y = point[0]
 
             to_return.append(reproject(x, y, inputSRS_wkt))
-    print(to_return)
+    print("to_return", to_return)
     return to_return
 
 def reprojectPoly(geojson_path, raster_path):
