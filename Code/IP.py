@@ -1,3 +1,6 @@
+
+
+
 import json
 import os
 import re
@@ -54,6 +57,7 @@ def reprojectLine(geojson_path, raster_path):
             y = point[0]
 
             to_return.append(reproject(x, y, inputSRS_wkt))
+    print(to_return)
     return to_return
 
 def reprojectPoly(geojson_path, raster_path):
