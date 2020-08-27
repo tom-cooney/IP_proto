@@ -14,7 +14,7 @@
            "geometry": {
                "type": "Point",
                "coordinates": [
-                   [100.0, 0.5]
+                   [-100.0, 45.0]
                ]
            }
        },
@@ -24,7 +24,7 @@
            "geometry": {
                "type": "Point",
                "coordinates": [
-                   [90.0, 0.5]
+                   [-110.0, 45.0]
                ]
            }
        }
