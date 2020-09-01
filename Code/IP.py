@@ -1,3 +1,6 @@
+
+
+
 import json
 import os
 import re
@@ -125,7 +128,8 @@ def getLine(raster_list, geoJSON_path):
     i = 0
     with open(geoJSON_path) as f:
         gj = json.load(f)
-    input_line = gj['features'][0]['geometry']['coordinates']    
+    input_line = gj['features'][0]['geometry']['coordinates']
+    print("in line: ", input_line)
     input_line = str(input_line)
     input_line = input_line.replace(" ", "")
     
