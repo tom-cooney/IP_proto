@@ -77,11 +77,9 @@ def reprojectPoly(geojson_path, raster_path):
                 #get the point
                 x = gj['features'][geom]['geometry']['coordinates'][line][point][1]
                 y = gj['features'][geom]['geometry']['coordinates'][line][point][0]
-                print("x, y before: ", x, y)
 
                 ret.append(reproject(x, y, inputSRS_wkt))
     to_return.append(ret)
-    print("to_return: ", to_return)
     return to_return
     
 #get the value at a specific input point in a point query
@@ -89,9 +87,10 @@ def getPoint(raster_list, geoJSON_path):
     to_return = {}
     i = 0
     
+    coords = reprojectLine(geoJSON_path, raster_list[0])
+    
     for raster_path in raster_list:
         #check if the input geojson crs matches the raster crs and reproject if needed and get input point geometry
-        coords = reprojectLine(geoJSON_path, raster_path)
         
         #setup and initialize vars for differentiating between temp, wdir, wspeed queries
         if "TMP" in raster_path:
@@ -114,7 +113,6 @@ def getPoint(raster_list, geoJSON_path):
         height = geotransform[5]
         x = int((x - origin_x) / width)
         y = int((y - origin_y) / height)
-        print(x,y)
         band = ds.GetRasterBand(1)
         arr = band.ReadAsArray()
         to_return[i] = [coords[0][0], coords[0][1], arr[y][x], data_type]
@@ -129,9 +127,14 @@ def getLine(raster_list, geoJSON_path):
     with open(geoJSON_path) as f:
         gj = json.load(f)
     input_line = gj['features'][0]['geometry']['coordinates']
-    print("in line: ", input_line)
     input_line = str(input_line)
     input_line = input_line.replace(" ", "")
+    
+    shapes = []
+    shapes.append({
+    'type': 'LineString',
+    'coordinates': reprojectLine(geoJSON_path, raster_list[0])
+    })
     
     for raster_path in raster_list:        
         #setup and initialize vars for differentiating between temp, wdir, wspeed queries
@@ -145,12 +148,6 @@ def getLine(raster_list, geoJSON_path):
         #Open Raster
         with rasterio.open(raster_path) as src:
             #check if the input geojson crs matches the raster crs and reproject if needed
-            shapes = []
-            shapes.append({
-                'type': 'LineString',
-                'coordinates': reprojectLine(geoJSON_path, raster_path)
-            })
-            print(shapes)
             #Clip the raster
             out_image, out_transform = rasterio.mask.mask(src, shapes, crop=True)
             out_meta = src.meta            
@@ -174,6 +171,13 @@ def summStatsPoly(raster_list, geoJSON_path):
     #setup returns
     to_return = {}
     i = 0
+    
+    shapes = []
+    shapes.append({
+        'type': 'Polygon',
+        'coordinates': reprojectPoly(geoJSON_path, raster_list[0])
+    })
+    
     for raster_path in raster_list:
         if "TMP" in raster_path:
             data_type = "Temperature Data"
@@ -185,12 +189,6 @@ def summStatsPoly(raster_list, geoJSON_path):
         #Open Raster
         with rasterio.open(raster_path) as src:
             #check if the input geojson crs matches the raster crs and reproject if needed
-            shapes = []
-            shapes.append({
-                'type': 'Polygon',
-                'coordinates': reprojectPoly(geoJSON_path, raster_path)
-            })
-            print("shapes: ", shapes)
             #Clip the raster
             out_image, out_transform = rasterio.mask.mask(src, shapes, crop=True)
             out_meta = src.meta
