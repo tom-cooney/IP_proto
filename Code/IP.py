@@ -1,3 +1,6 @@
+
+
+
 import json
 import os
 import re
@@ -145,6 +148,7 @@ def getLine(raster_list, geoJSON_path):
                 'type': 'LineString',
                 'coordinates': reprojectLine(geoJSON_path, raster_path)
             })
+            print(shapes)
             #Clip the raster
             out_image, out_transform = rasterio.mask.mask(src, shapes, crop=True)
             out_meta = src.meta            
