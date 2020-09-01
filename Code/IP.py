@@ -1,6 +1,3 @@
-
-
-
 import json
 import os
 import re
@@ -113,7 +110,8 @@ def getPoint(raster_list, geoJSON_path):
         width = geotransform[1]
         height = geotransform[5]
         x = int((x - origin_x) / width)
-        y = int((y - origin_y) / height)        
+        y = int((y - origin_y) / height)
+        print(x,y)
         band = ds.GetRasterBand(1)
         arr = band.ReadAsArray()
         to_return[i] = [coords[0][0], coords[0][1], arr[y][x], data_type]
