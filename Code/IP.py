@@ -1,9 +1,15 @@
+
+
+
+from datetime import datetime
 import json
+import logging
 import os
 import re
 import sys
 import tempfile
 
+from elasticsearch import Elasticsearch, exceptions
 import fiona
 from fiona import transform
 import numpy as np
@@ -16,6 +22,11 @@ from rasterio.io import MemoryFile
 #delete later
 import time
 
+LOGGER = logging.getLogger(__name__)
+
+ES_INDEX = 'geomet-data-registry-tileindex-ip'
+DATE_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
+
 #initalize dictionary to return and generic metadata
 OUTDATA = {}
 OUTDATA['metadata'] = []
@@ -27,6 +38,64 @@ OUTDATA['metadata'].append({
     "Wind Speed Units": "m/s"
 })
 
+def get_files(layers, fh, mr):
+
+    """
+    ES search to find files names
+    param layers : arrays of three layers
+    param fh : forcast hour datetime
+    param mr : model run
+    return : files : arrays of threee file paths
+    """
+    # TODO: use env variable for ES connection
+
+    es = Elasticsearch(['localhost:9200'])
+    list_files = []
+    weather_variables = []
+
+    for layer in layers:
+        for time_ in fh.split(','):    
+            files = {}
+            s_object = {
+                'query': {
+                    'bool': {
+                        'must': {
+                            'match': {'properties.layer.raw': layer}
+                        },
+                        'filter': [
+                            {'term': {'properties.forecast_hour_datetime': time_}},
+                            {'term': {'properties.reference_datetime': mr}}
+                        ]
+                    }
+                }
+            }
+
+            try:
+                res = es.search(index=ES_INDEX, body=s_object)
+
+                try:
+                    filepath =  res['hits']['hits'][0]['_source']['properties']['filepath']
+                    fh = res['hits']['hits'][0]['_source']['properties']['forecast_hour_datetime']
+                    mr = res['hits']['hits'][0]['_source']['properties']['reference_datetime']
+
+                    files['filepath'] = filepath
+                    files['forecast_hour'] = fh
+                    files['model_run'] = mr
+
+                    list_files.append(files)
+
+                except IndexError as error:
+                    msg = 'invalid input value: {}' .format(error)
+                    LOGGER.error(msg)
+                    return None, None
+
+            except exceptions.ElasticsearchException as error:
+                msg = 'ES search failed: {}' .format(error)
+                LOGGER.error(msg)
+                return None, None
+    return list_files
+
+
 def reproject(x, y, inputSRS_wkt):
     #reproject the point
     srs = osr.SpatialReference()
@@ -36,7 +105,7 @@ def reproject(x, y, inputSRS_wkt):
     _x, _y = transformer.transform(x, y)
     return [_x, _y]
 
-def reprojectLine(geojson_path, raster_path):
+def reproject_line(geojson_path, raster_path):
     to_return = []
     #get wkt projection definition from grib
     ds = gdal.Open(raster_path)
@@ -56,7 +125,7 @@ def reprojectLine(geojson_path, raster_path):
             to_return.append(reproject(x, y, inputSRS_wkt))
     return to_return
 
-def reprojectPoly(geojson_path, raster_path):
+def reproject_poly(geojson_path, raster_path):
     ret = []
     to_return = []
     #get wkt projection definition from grib
@@ -80,11 +149,11 @@ def reprojectPoly(geojson_path, raster_path):
     return to_return
     
 #get the value at a specific input point in a point query
-def getPoint(raster_list, geoJSON_path):
+def get_point(raster_list, geoJSON_path):
     to_return = {}
     i = 0
     
-    coords = reprojectLine(geoJSON_path, raster_list[0])
+    coords = reproject_line(geoJSON_path, raster_list[0])
     print("coords: ", coords)
     
     for raster_path in raster_list:
@@ -119,8 +188,9 @@ def getPoint(raster_list, geoJSON_path):
         
     return to_return
 
+
 #get the values along an input line in a line query
-def getLine(raster_list, geoJSON_path):
+def get_line(raster_list, geoJSON_path):
     to_return = {}
     i = 0
     with open(geoJSON_path) as f:
@@ -132,7 +202,7 @@ def getLine(raster_list, geoJSON_path):
     shapes = []
     shapes.append({
     'type': 'LineString',
-    'coordinates': reprojectLine(geoJSON_path, raster_list[0])
+    'coordinates': reproject_line(geoJSON_path, raster_list[0])
     })
     print("shapes: ", shapes)
     
@@ -167,7 +237,7 @@ def getLine(raster_list, geoJSON_path):
     return to_return
 
 #get the summary statistics for an input polygon in polygon queries    
-def summStatsPoly(raster_list, geoJSON_path):
+def summ_stats_poly(raster_list, geoJSON_path):
     #setup returns
     to_return = {}
     i = 0
@@ -175,7 +245,7 @@ def summStatsPoly(raster_list, geoJSON_path):
     shapes = []
     shapes.append({
         'type': 'Polygon',
-        'coordinates': reprojectPoly(geoJSON_path, raster_list[0])
+        'coordinates': reproject_poly(geoJSON_path, raster_list[0])
     })
     print("shapes: ", shapes)
     
@@ -209,7 +279,7 @@ def summStatsPoly(raster_list, geoJSON_path):
                     i += 1
     return to_return
         
-def polyOut(string_name, forecast_hour, value):
+def poly_out(string_name, forecast_hour, value):
     to_return = []
     to_return.append({
         'Forecast Hour': forecast_hour,
@@ -217,7 +287,7 @@ def polyOut(string_name, forecast_hour, value):
     })
     return to_return
 
-def pointOut(string_name, forecast_hour, key):
+def point_out(string_name, forecast_hour, key):
     to_return = []
     to_return.append({
         "Forecast Hour": forecast_hour,
@@ -225,7 +295,7 @@ def pointOut(string_name, forecast_hour, key):
             })
     return to_return
 
-def writeOutput(features, forecast_hours, poly, line, point):
+def write_output(features, forecast_hours, poly, line, point):
     #initalize dictionary to return and generic metadata
     i = 0
     
@@ -283,17 +353,17 @@ def writeOutput(features, forecast_hours, poly, line, point):
         for item in features:
             for key in item.keys():
                 if 'Temperature Data' in item[key][3]:
-                    OUTDATA['Min Temperature Data'].append(polyOut("Min Temperature", forecast_hours[i], item[key][0]))
-                    OUTDATA['Max Temperature Data'].append(polyOut("Max Temperature", forecast_hours[i], item[key][1]))
-                    OUTDATA['Mean Temperature Data'].append(polyOut("Mean Temperature", forecast_hours[i], item[key][2]))
+                    OUTDATA['Min Temperature Data'].append(poly_out("Min Temperature", forecast_hours[i], item[key][0]))
+                    OUTDATA['Max Temperature Data'].append(poly_out("Max Temperature", forecast_hours[i], item[key][1]))
+                    OUTDATA['Mean Temperature Data'].append(poly_out("Mean Temperature", forecast_hours[i], item[key][2]))
                 if 'Wind Direction Data' in item[key][3]:
-                    OUTDATA['Min Wind Direction Data'].append(polyOut("Min Wind Direction", forecast_hours[i], item[key][0]))
-                    OUTDATA['Max Wind Direction Data'].append(polyOut("Max Wind Direction", forecast_hours[i], item[key][1]))
-                    OUTDATA['Mean Wind Direction Data'].append(polyOut("Mean Wind Direction", forecast_hours[i], item[key][2]))
+                    OUTDATA['Min Wind Direction Data'].append(poly_out("Min Wind Direction", forecast_hours[i], item[key][0]))
+                    OUTDATA['Max Wind Direction Data'].append(poly_out("Max Wind Direction", forecast_hours[i], item[key][1]))
+                    OUTDATA['Mean Wind Direction Data'].append(poly_out("Mean Wind Direction", forecast_hours[i], item[key][2]))
                 if 'Wind Speed Data' in item[key][3]:
-                    OUTDATA['Min Wind Speed Data'].append(polyOut("Min Wind Speed", forecast_hours[i], item[key][0]))
-                    OUTDATA['Max Wind Speed Data'].append(polyOut("Miax Wind Speed", forecast_hours[i], item[key][1]))
-                    OUTDATA['Mean Wind Speed Data'].append(polyOut("Mean Wind Speed", forecast_hours[i], item[key][2]))
+                    OUTDATA['Min Wind Speed Data'].append(poly_out("Min Wind Speed", forecast_hours[i], item[key][0]))
+                    OUTDATA['Max Wind Speed Data'].append(poly_out("Miax Wind Speed", forecast_hours[i], item[key][1]))
+                    OUTDATA['Mean Wind Speed Data'].append(poly_out("Mean Wind Speed", forecast_hours[i], item[key][2]))
 
                     
                 i += 1
@@ -312,11 +382,11 @@ def writeOutput(features, forecast_hours, poly, line, point):
         for item in features:
             for key in item.keys():
                 if 'Temperature Data' in item[key][3]:
-                    OUTDATA['Temperature Data'].append(pointOut("Temperature Observation", forecast_hours[i], item[key][2]))
+                    OUTDATA['Temperature Data'].append(point_out("Temperature Observation", forecast_hours[i], item[key][2]))
                 if 'Wind Direction Data' in item[key][3]:
-                    OUTDATA['Wind Direction Data'].append(pointOut("Wind Direction Observation", forecast_hours[i], item[key][2]))
+                    OUTDATA['Wind Direction Data'].append(point_out("Wind Direction Observation", forecast_hours[i], item[key][2]))
                 if 'Wind Speed Data' in item[key][3]:
-                    OUTDATA['Wind Speed Data'].append(pointOut("Wind Speed Observation", forecast_hours[i], item[key][2]))
+                    OUTDATA['Wind Speed Data'].append(point_out("Wind Speed Observation", forecast_hours[i], item[key][2]))
                 i += 1
     
     #write the ouput
@@ -326,16 +396,36 @@ def writeOutput(features, forecast_hours, poly, line, point):
 if __name__ == '__main__':
     start_time = time.time()
     
-    with open(sys.argv[1]) as f:
-        result = json.load(f)
+    if len(sys.argv) < 4:
+        print('Usage: %s <model> <forecast hours> <model run>' % sys.argv[0])
+        sys.exit(1)
+        
+    model = sys.argv[1]
+    fh = sys.argv[2]
+    mr = sys.argv[3]
+
+    var_list = ['TT', 'WD', 'WSPD']
+    layers = []
+
+    if model.upper() == 'HRDPS':
+        model = 'HRDPS.CONTINENTAL_{}'
+
+    for layer in var_list:
+        layers.append(model.format(layer)) 
+
+    result = get_files(layers, fh, mr)
+    print(result)
     
     raster_list = []
     forecast_hours = []
     for element in result:
         raster_list.append(element["filepath"])
         forecast_hours.append(element["forecast_hour"])
+        
+    print(raster_list)
+    print(forecast_hours)
     #get polygon/line/point to clip
-    geoJSON_path = sys.argv[2]
+    geoJSON_path = sys.argv[4]
     
     #setup variables for differentiating between point, line, polygon calls and other needed vars
     features = []
@@ -349,18 +439,18 @@ if __name__ == '__main__':
     for feature in indata['features']:
         if feature['geometry']['type'] == "Polygon" or feature['geometry']['type'] == "MultiPolygon":
             poly = True
-            features.append(summStatsPoly(raster_list, geoJSON_path))
+            features.append(summ_stats_poly(raster_list, geoJSON_path))
             break
         elif feature['geometry']['type'] == "LineString" or feature['geometry']['type'] == "MultiLineString":
             line = True
-            features.append(getLine(raster_list, geoJSON_path))
+            features.append(get_line(raster_list, geoJSON_path))
             break
         elif feature['geometry']['type'] == "Point" or feature['geometry']['type'] == "MultiPoint":
             point = True
-            features.append(getPoint(raster_list, geoJSON_path))
+            features.append(get_point(raster_list, geoJSON_path))
     
     #after putting necessary data in features call the writing output file function
-    writeOutput(features, forecast_hours, poly, line, point)
+    write_output(features, forecast_hours, poly, line, point)
     end_time = time.time()
     print("Run time: ", (end_time - start_time))
 
