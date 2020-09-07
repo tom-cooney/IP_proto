@@ -177,6 +177,7 @@ def summStatsPoly(raster_list, geoJSON_path):
         'type': 'Polygon',
         'coordinates': reprojectPoly(geoJSON_path, raster_list[0])
     })
+    print("shapes: ", shapes)
     
     for raster_path in raster_list:
         if "TMP" in raster_path:
