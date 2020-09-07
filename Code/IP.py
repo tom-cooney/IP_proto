@@ -1,7 +1,4 @@
-#!/usr/bin/env python
-# coding: utf-8
 
-# In[ ]:
 
 
 import json
@@ -139,6 +136,7 @@ def getLine(raster_list, geoJSON_path):
     'type': 'LineString',
     'coordinates': reprojectLine(geoJSON_path, raster_list[0])
     })
+    print("shapes: ", shapes)
     
     for raster_path in raster_list:        
         #setup and initialize vars for differentiating between temp, wdir, wspeed queries
