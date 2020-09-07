@@ -1,4 +1,7 @@
+#!/usr/bin/env python
+# coding: utf-8
 
+# In[ ]:
 
 
 import json
@@ -88,6 +91,7 @@ def getPoint(raster_list, geoJSON_path):
     i = 0
     
     coords = reprojectLine(geoJSON_path, raster_list[0])
+    print("coords: ", coords)
     
     for raster_path in raster_list:
         #check if the input geojson crs matches the raster crs and reproject if needed and get input point geometry
