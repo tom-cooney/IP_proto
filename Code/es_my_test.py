@@ -1,3 +1,6 @@
+
+
+
 from datetime import datetime
 import logging
 import sys
@@ -6,7 +9,7 @@ from elasticsearch import Elasticsearch, exceptions
 
 LOGGER = logging.getLogger(__name__)
 
-ES_INDEX = 'geomet-data-registry-tileindex-lp'
+ES_INDEX = 'geomet-data-registry-tileindex-ip'
 DATE_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
 
