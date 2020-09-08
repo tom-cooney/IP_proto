@@ -163,10 +163,12 @@ def get_point(raster_list, geoJSON_path):
     to_return = {}
     i = 0
     
+    #get inital lat/long coordinates
     with open(geoJSON_path) as f:
         gj = json.load(f)
     init_coords = gj['features'][0]['geometry']['coordinates']
     
+    #reproject
     coords = reproject_line(geoJSON_path, raster_list[0])
     
     for raster_path in raster_list:
@@ -179,6 +181,9 @@ def get_point(raster_list, geoJSON_path):
             data_type = "Wind Direction Data"
         if "WIND" in raster_path:
             data_type = "Wind Speed Data"
+        
+        x = coords[0][0]
+        y = coords[0][1]
 
         ds = gdal.Open(raster_path, gdal.GA_ReadOnly)
         band = ds.GetRasterBand(1)
@@ -418,7 +423,6 @@ if __name__ == '__main__':
     for element in result:
         raster_list.append(element["filepath"])
         forecast_hours.append(element["forecast_hour"])
-    print("raster list: ", raster_list)
     #get polygon/line/point to clip
     geoJSON_path = sys.argv[4]
     
