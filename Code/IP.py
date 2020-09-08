@@ -1,6 +1,3 @@
-
-
-
 from datetime import datetime
 import json
 import logging
@@ -351,6 +348,7 @@ def write_output(features, forecast_hours, poly, line, point):
         print(forecast_hours)
         for item in features:
             for key in item.keys():
+                print("len: ", len(item.keys()))
                 print("i: ", i)
                 if 'Temperature Data' in item[key][3]:
                     print("forecast_hours[i]: ", forecast_hours[i])
@@ -382,6 +380,7 @@ def write_output(features, forecast_hours, poly, line, point):
         print(forecast_hours)
         for item in features:
             for key in item.keys():
+                print("len: ", len(item.keys()))
                 print("i: ", i)
                 if 'Temperature Data' in item[key][3]:
                     print("forecast_hours[i]: ", forecast_hours[i])
