@@ -1,6 +1,3 @@
-
-
-
 from datetime import datetime
 import json
 import logging
@@ -205,6 +202,9 @@ def get_line(raster_list, geoJSON_path):
     'coordinates': reproject_line(geoJSON_path, raster_list[0])
     })
     print("shapes: ", shapes)
+    
+    for point in shapes:
+        print(point['coordinates'])
     
     for raster_path in raster_list:        
         #setup and initialize vars for differentiating between temp, wdir, wspeed queries
