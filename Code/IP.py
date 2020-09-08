@@ -1,4 +1,7 @@
+#!/usr/bin/env python
+# coding: utf-8
 
+# In[ ]:
 
 
 from datetime import datetime
@@ -181,6 +184,7 @@ def get_point(raster_list, geoJSON_path):
         x = coords[0][0]
         y = coords[0][1]
 
+        ds = gdal.Open(raster_path, gdal.GA_ReadOnly)
         band = ds.GetRasterBand(1)
         arr = band.ReadAsArray()
         to_return[i] = [coords[0][0], coords[0][1], arr[y][x], data_type]
