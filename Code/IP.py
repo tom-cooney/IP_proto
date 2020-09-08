@@ -380,8 +380,8 @@ def write_output(features, forecast_hours, poly, line, point):
         print(forecast_hours)
         for item in features:
             for key in item.keys():
-                print("len: ", len(item.keys()))
-                print("i: ", i)
+                if i >= len(item.keys()):
+                    break
                 if 'Temperature Data' in item[key][3]:
                     print("forecast_hours[i]: ", forecast_hours[i])
                     print("item[key][2]: ", item[key][2])
