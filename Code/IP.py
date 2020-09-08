@@ -93,14 +93,24 @@ def get_files(layers, fh, mr):
     return list_files
 
 
-def reproject(x, y, inputSRS_wkt):
+def reproject(x, y, inputSRS_wkt, raster_path):
     #reproject the point
     srs = osr.SpatialReference()
     srs.ImportFromWkt(inputSRS_wkt)
     #assume all geojson inputs have crs epsg:4326
     transformer = Transformer.from_crs("epsg:4326", srs.ExportToProj4())
     _x, _y = transformer.transform(x, y)
-    return [_x, _y]
+    
+    ds = gdal.Open(raster_path, gdal.GA_ReadOnly)
+    geotransform = ds.GetGeoTransform()
+    origin_x = geotransform[0]
+    origin_y = geotransform[3]
+    width = geotransform[1]
+    height = geotransform[5]
+    final_x = int((_x - origin_x) / width)
+    final_y = int((_y - origin_y) / height)
+    
+    return [final_x, final_y]
 
 def reproject_line(geojson_path, raster_path):
     to_return = []
@@ -119,7 +129,7 @@ def reproject_line(geojson_path, raster_path):
             x = point[1]
             y = point[0]
 
-            to_return.append(reproject(x, y, inputSRS_wkt))
+            to_return.append(reproject(x, y, inputSRS_wkt, raster_path))
     return to_return
 
 def reproject_poly(geojson_path, raster_path):
@@ -141,7 +151,7 @@ def reproject_poly(geojson_path, raster_path):
                 x = gj['features'][geom]['geometry']['coordinates'][line][point][1]
                 y = gj['features'][geom]['geometry']['coordinates'][line][point][0]
 
-                ret.append(reproject(x, y, inputSRS_wkt))
+                ret.append(reproject(x, y, inputSRS_wkt, raster_path))
     to_return.append(ret)
     return to_return
     
