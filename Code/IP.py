@@ -1,3 +1,6 @@
+
+
+
 from datetime import datetime
 import json
 import logging
@@ -350,7 +353,7 @@ def write_output(features, forecast_hours, poly, line, point):
             for key in item.keys():
                 print("i: ", i)
                 if 'Temperature Data' in item[key][3]:
-                    print("forecast_hours[i]: ", forecast_hours[i]")
+                    print("forecast_hours[i]: ", forecast_hours[i])
                     print("item[key][n]: ",item[key][0], item[key][1], item[key][2])
                     OUTDATA['Min Temperature Data'].append(poly_out("Min Temperature", forecast_hours[i], item[key][0]))
                     OUTDATA['Max Temperature Data'].append(poly_out("Max Temperature", forecast_hours[i], item[key][1]))
@@ -381,7 +384,7 @@ def write_output(features, forecast_hours, poly, line, point):
             for key in item.keys():
                 print("i: ", i)
                 if 'Temperature Data' in item[key][3]:
-                    print("forecast_hours[i]: ", forecast_hours[i]")
+                    print("forecast_hours[i]: ", forecast_hours[i])
                     print("item[key][2]: ", item[key][2])
                     OUTDATA['Temperature Data'].append(point_out("Temperature Observation", forecast_hours[i], item[key][2]))
                 if 'Wind Direction Data' in item[key][3]:
