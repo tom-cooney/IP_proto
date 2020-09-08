@@ -1,6 +1,3 @@
-
-
-
 from datetime import datetime
 import json
 import logging
@@ -235,6 +232,7 @@ def get_line(raster_list, geoJSON_path):
                     ds = dataset.read()
                     #remove the zero values from the bounding box surrounding the line in the raster
                     ds = ds[ds!=0]
+                    ds = ds[ds!=9999.0]
                     to_return[i] = [ds, data_type, input_line]
                     i += 1
         
@@ -274,6 +272,7 @@ def summ_stats_poly(raster_list, geoJSON_path):
                     dataset.write(out_image)
                     #read the clipped raster from memory
                     ds = dataset.read()
+                    ds = ds[ds!=9999.0]
                     #create summary stats
                     min_val = np.min(ds, axis = None)
                     max_val = np.max(ds, axis = None)
