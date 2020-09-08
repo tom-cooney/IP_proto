@@ -1,3 +1,6 @@
+
+
+
 from datetime import datetime
 import json
 import logging
@@ -178,16 +181,6 @@ def get_point(raster_list, geoJSON_path):
         x = coords[0][0]
         y = coords[0][1]
 
-        #tranform from lat/long coordinates to their corresponding (x,y) pixel in the raster
-        ds = gdal.Open(raster_path, gdal.GA_ReadOnly)
-        geotransform = ds.GetGeoTransform()
-        origin_x = geotransform[0]
-        origin_y = geotransform[3]
-        width = geotransform[1]
-        height = geotransform[5]
-        x = int((x - origin_x) / width)
-        y = int((y - origin_y) / height)
-        print("final x,y :", x, y)
         band = ds.GetRasterBand(1)
         arr = band.ReadAsArray()
         to_return[i] = [coords[0][0], coords[0][1], arr[y][x], data_type]
