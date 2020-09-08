@@ -1,6 +1,3 @@
-
-
-
 from datetime import datetime
 import json
 import logging
@@ -163,7 +160,7 @@ def get_point(raster_list, geoJSON_path):
     to_return = {}
     i = 0
     
-    with open(geojson_path) as f:
+    with open(geoJSON_path) as f:
         gj = json.load(f)
     init_x, init_y = gj['features'][0]['geometry']['coordinates']
     
