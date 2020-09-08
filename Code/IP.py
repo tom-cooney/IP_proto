@@ -166,7 +166,6 @@ def get_point(raster_list, geoJSON_path):
     with open(geoJSON_path) as f:
         gj = json.load(f)
     init_coords = gj['features'][0]['geometry']['coordinates']
-    print(init_x)
     
     coords = reproject_line(geoJSON_path, raster_list[0])
     
