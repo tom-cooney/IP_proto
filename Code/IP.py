@@ -1,7 +1,4 @@
-#!/usr/bin/env python
-# coding: utf-8
 
-# In[ ]:
 
 
 from datetime import datetime
@@ -167,7 +164,6 @@ def get_point(raster_list, geoJSON_path):
     i = 0
     
     coords = reproject_line(geoJSON_path, raster_list[0])
-    print("coords: ", coords)
     
     for raster_path in raster_list:
         #check if the input geojson crs matches the raster crs and reproject if needed and get input point geometry
@@ -208,10 +204,6 @@ def get_line(raster_list, geoJSON_path):
     'type': 'LineString',
     'coordinates': reproject_line(geoJSON_path, raster_list[0])
     })
-    print("shapes: ", shapes)
-    
-    for point in shapes:
-        print(point['coordinates'])
     
     for raster_path in raster_list:        
         #setup and initialize vars for differentiating between temp, wdir, wspeed queries
@@ -254,7 +246,6 @@ def summ_stats_poly(raster_list, geoJSON_path):
         'type': 'Polygon',
         'coordinates': reproject_poly(geoJSON_path, raster_list[0])
     })
-    print("shapes: ", shapes)
     
     for raster_path in raster_list:
         if "TMP" in raster_path:
@@ -370,9 +361,7 @@ def write_output(features, forecast_hours, poly, line, point):
                 if 'Wind Speed Data' in item[key][3]:
                     OUTDATA['Min Wind Speed Data'].append(poly_out("Min Wind Speed", forecast_hours[i], item[key][0]))
                     OUTDATA['Max Wind Speed Data'].append(poly_out("Miax Wind Speed", forecast_hours[i], item[key][1]))
-                    OUTDATA['Mean Wind Speed Data'].append(poly_out("Mean Wind Speed", forecast_hours[i], item[key][2]))
-
-                    
+                    OUTDATA['Mean Wind Speed Data'].append(poly_out("Mean Wind Speed", forecast_hours[i], item[key][2]))    
                 i += 1
                     
     #prepare point output
@@ -389,6 +378,8 @@ def write_output(features, forecast_hours, poly, line, point):
         for item in features:
             for key in item.keys():
                 if 'Temperature Data' in item[key][3]:
+                    print(forecast_hours[i])
+                    print(item[key][2])
                     OUTDATA['Temperature Data'].append(point_out("Temperature Observation", forecast_hours[i], item[key][2]))
                 if 'Wind Direction Data' in item[key][3]:
                     OUTDATA['Wind Direction Data'].append(point_out("Wind Direction Observation", forecast_hours[i], item[key][2]))
