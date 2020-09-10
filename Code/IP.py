@@ -179,8 +179,8 @@ def get_point(raster_list, geoJSON_path):
         if "WIND" in raster_path:
             data_type = "Wind Speed Data"
         
-        x = coords[0][0]
-        y = coords[0][1]
+        x = int(coords[0][0])
+        y = int(coords[0][1])
 
         ds = gdal.Open(raster_path, gdal.GA_ReadOnly)
         band = ds.GetRasterBand(1)
