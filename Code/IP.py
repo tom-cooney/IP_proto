@@ -1,6 +1,3 @@
-
-
-
 from datetime import datetime
 import json
 import logging
@@ -415,6 +412,7 @@ if __name__ == '__main__':
         layers.append(model.format(layer)) 
 
     result = get_files(layers, fh, mr)
+    print("result: ", result)
     
     raster_list = []
     forecast_hours = []
@@ -422,6 +420,7 @@ if __name__ == '__main__':
         raster_list.append(element["filepath"])
         forecast_hours.append(element["forecast_hour"])
     print(raster_list)
+    print(forecast_hours)
     #get polygon/line/point to clip
     geoJSON_path = sys.argv[4]
     
