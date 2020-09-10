@@ -1,3 +1,6 @@
+
+
+
 from datetime import datetime
 import json
 import logging
@@ -15,9 +18,6 @@ from pyproj import Transformer
 import rasterio
 import rasterio.mask
 from rasterio.io import MemoryFile
-
-#delete later
-import time
 
 LOGGER = logging.getLogger(__name__)
 
@@ -107,8 +107,8 @@ def reproject(x, y, inputSRS_wkt, raster_path):
     origin_y = geotransform[3]
     width = geotransform[1]
     height = geotransform[5]
-    final_x = int((_x - origin_x) / width)
-    final_y = int((_y - origin_y) / height)
+    final_x = (_x - origin_x) / width
+    final_y = (_y - origin_y) / height
     
     return [final_x, final_y]
 
@@ -396,7 +396,6 @@ def write_output(features, forecast_hours, poly, line, point):
         json.dump(OUTDATA, outfile, indent=2)
 
 if __name__ == '__main__':
-    start_time = time.time()
     
     if len(sys.argv) < 4:
         print('Usage: %s <model> <forecast hours> <model run>' % sys.argv[0])
@@ -449,17 +448,4 @@ if __name__ == '__main__':
     
     #after putting necessary data in features call the writing output file function
     write_output(features, forecast_hours, poly, line, point)
-    end_time = time.time()
-    print("Run time: ", (end_time - start_time))
-
-    """
-    remove timing before final commit and submission
-    """  
-    
-"""
-IP.py "B:/sample_es.json" "B:/linetest.geojson"
-IP.py "B:/sample_es.json" "B:/PointTest.geojson"
-IP.py "B:/sample_es.json" "B:/PolyTest.geojson"
-
-"""
 
