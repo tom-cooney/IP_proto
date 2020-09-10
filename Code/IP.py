@@ -69,11 +69,11 @@ def get_files(layers, fh, mr):
 
                 try:
                     filepath =  res['hits']['hits'][0]['_source']['properties']['filepath']
-                    fh = res['hits']['hits'][0]['_source']['properties']['forecast_hour_datetime']
+                    fh_ = res['hits']['hits'][0]['_source']['properties']['forecast_hour_datetime']
                     mr = res['hits']['hits'][0]['_source']['properties']['reference_datetime']
 
                     files['filepath'] = filepath
-                    files['forecast_hour'] = fh
+                    files['forecast_hour'] = fh_
                     files['model_run'] = mr
 
                     list_files.append(files)
