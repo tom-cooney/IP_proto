@@ -415,6 +415,7 @@ if __name__ == '__main__':
         layers.append(model.format(layer)) 
 
     result = get_files(layers, fh, mr)
+    print(result)
     
     raster_list = []
     forecast_hours = []
