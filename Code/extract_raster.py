@@ -484,7 +484,48 @@ def write_output(features, forecast_hours, poly, line, point):
                     OUTDATA['Wind Speed Data'].append(point_out("Wind Speed Observation", forecast_hours[i], item[key][2]))
                 i += 1
     
-    return OUTDATA    
+    return OUTDATA
+
+def extract_raster_main(model, forecast_hours_, model_run, input_geojson):
+    var_list = ['TT', 'WD', 'WSPD']
+    layers = []
+
+    if model.upper() == 'HRDPS':
+        model = 'HRDPS.CONTINENTAL_{}'
+
+    for layer in var_list:
+        layers.append(model.format(layer)) 
+
+    result = get_files(layers, forecast_hours_, model_run)
+
+    raster_list = []
+    forecast_hours = []
+    for element in result:
+        raster_list.append(element["filepath"])
+        forecast_hours.append(element["forecast_hour"])
+
+    #setup variables for differentiating between point, line, polygon calls and other needed vars
+    features = []
+    poly = False
+    line = False
+    point = False
+
+    for feature in input_geojson['features']:
+        if feature['geometry']['type'] == "Polygon" or feature['geometry']['type'] == "MultiPolygon":
+            poly = True
+            features.append(summ_stats_poly(raster_list, input_geojson))
+            break
+        elif feature['geometry']['type'] == "LineString" or feature['geometry']['type'] == "MultiLineString":
+            line = True
+            features.append(get_line(raster_list, input_geojson))
+            break
+        elif feature['geometry']['type'] == "Point" or feature['geometry']['type'] == "MultiPoint":
+            point = True
+            features.append(get_point(raster_list, input_geojson))
+            
+    output_geojson = write_output(features, forecast_hours, poly, line, point)
+    
+    return output_geojson
     
 try:
     from pygeoapi.process.base import BaseProcessor, ProcessorExecuteError
@@ -507,43 +548,7 @@ try:
             model_run = data["model_run"]
             input_geojson = json.loads(data["input_geojson"])
             
-            var_list = ['TT', 'WD', 'WSPD']
-            layers = []
-
-            if model.upper() == 'HRDPS':
-                model = 'HRDPS.CONTINENTAL_{}'
-
-            for layer in var_list:
-                layers.append(model.format(layer)) 
-
-            result = get_files(layers, forecast_hours_, model_run)
-            
-            raster_list = []
-            forecast_hours = []
-            for element in result:
-                raster_list.append(element["filepath"])
-                forecast_hours.append(element["forecast_hour"])
-            
-            #setup variables for differentiating between point, line, polygon calls and other needed vars
-            features = []
-            poly = False
-            line = False
-            point = False
-            
-            for feature in input_geojson['features']:
-                if feature['geometry']['type'] == "Polygon" or feature['geometry']['type'] == "MultiPolygon":
-                    poly = True
-                    features.append(summ_stats_poly(raster_list, input_geojson))
-                    break
-                elif feature['geometry']['type'] == "LineString" or feature['geometry']['type'] == "MultiLineString":
-                    line = True
-                    features.append(get_line(raster_list, input_geojson))
-                    break
-                elif feature['geometry']['type'] == "Point" or feature['geometry']['type'] == "MultiPoint":
-                    point = True
-                    features.append(get_point(raster_list, input_geojson))
-            
-            output_geojson = write_output(features, forecast_hours, poly, line, point)
+            output_geojson = extract_raster_main(model, forecast_hours_, model_run, input_geojson)
 
             return output_geojson
 
