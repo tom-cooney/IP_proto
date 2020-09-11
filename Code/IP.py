@@ -404,6 +404,7 @@ if __name__ == '__main__':
     model = sys.argv[1]
     fh = sys.argv[2]
     mr = sys.argv[3]
+    print(model, fh, mr)
 
     var_list = ['TT', 'WD', 'WSPD']
     layers = []
