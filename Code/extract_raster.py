@@ -30,6 +30,7 @@
 #
 # =================================================================
 
+import click
 from datetime import datetime
 import json
 import logging
@@ -39,11 +40,11 @@ import sys
 import tempfile
 
 from elasticsearch import Elasticsearch, exceptions
-import fiona
-from fiona import transform
+#import fiona
+#from fiona import transform
 import numpy as np
 from osgeo import gdal, osr
-from pyproj import Transformer
+from pyproj import Proj, transform
 import rasterio
 import rasterio.mask
 from rasterio.io import MemoryFile
@@ -51,13 +52,25 @@ from rasterio.io import MemoryFile
 LOGGER = logging.getLogger(__name__)
 
 #: Process metadata and description
+#update links to my own in future
 PROCESS_METADATA = {
     'version': '0.1.0',
-    'id': 'extract-world',
+    'id': 'extract-raster',
     'title': 'Extract raster data',
     'description': 'extract raster data by point, line, polygon',
     'keywords': ['extract raster'],
     'links': [{
+        'type': 'text/html',
+        'rel': 'canonical',
+        'title': 'information',
+        'href': 'https://canada.ca/climate-services',
+        'hreflang': 'en-CA'
+    }, {
+        'type': 'text/html',
+        'rel': 'canonical',
+        'title': 'information',
+        'href': 'https://canada.ca/services-climatiques',
+        'hreflang': 'fr-CA'
 
     }],
     'inputs': [{
@@ -201,9 +214,9 @@ def reproject(x, y, inputSRS_wkt, raster_path):
     #reproject the point
     srs = osr.SpatialReference()
     srs.ImportFromWkt(inputSRS_wkt)
-    #assume all geojson inputs have crs epsg:4326
-    transformer = Transformer.from_crs("epsg:4326", srs.ExportToProj4())
-    _x, _y = transformer.transform(x, y)
+    inProj = Proj(init='epsg:4326')
+    outProj = Proj(srs.ExportToProj4())
+    _x, _y = transform(inProj, outProj, x, y)
     
     ds = gdal.Open(raster_path, gdal.GA_ReadOnly)
     geotransform = ds.GetGeoTransform()
@@ -486,6 +499,23 @@ def write_output(features, forecast_hours, poly, line, point):
     
     return OUTDATA
 
+@click.command('extract-raster')
+@click.pass_context
+@click.option('--model', 'model', help='which type of raster')
+@click.option('--forecast_hours_', 'forecast_hours_',
+              help='Forecast hours to extract from')
+@click.option('--model_run', 'model_run',
+              help='model run to use for the time series')
+@click.option('--input_geojson', 'input_geojson', help='shape to clip by')
+def cli(ctx, model, forecast_hours_, model_run, input_geojson):
+
+    output_geojson = extract_raster_main(model, forecast_hours_, model_run, input_geojson)
+
+    return output_geojson
+
+    if output is not None:
+        click.echo(json.dumps(output_geojson))
+
 def extract_raster_main(model, forecast_hours_, model_run, input_geojson):
     var_list = ['TT', 'WD', 'WSPD']
     layers = []
@@ -546,7 +576,7 @@ try:
             model = data["model"]
             forecast_hours_ = data["forecast_hours_"]
             model_run = data["model_run"]
-            input_geojson = json.loads(data["input_geojson"])
+            input_geojson = data["input_geojson"]
             
             output_geojson = extract_raster_main(model, forecast_hours_, model_run, input_geojson)
 
