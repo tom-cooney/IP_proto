@@ -423,6 +423,7 @@ if __name__ == '__main__':
     for element in result:
         raster_list.append(element["filepath"])
         forecast_hours.append(element["forecast_hour"])
+    print(raster_list)
     #get polygon/line/point to clip
     geoJSON_path = sys.argv[4]
     
