@@ -1,6 +1,3 @@
-
-
-
 from datetime import datetime
 import json
 import logging
@@ -21,7 +18,7 @@ from rasterio.io import MemoryFile
 
 LOGGER = logging.getLogger(__name__)
 
-ES_INDEX = 'geomet-data-registry'
+ES_INDEX = 'hackathon-lp'
 DATE_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
 #initalize dictionary to return and generic metadata
