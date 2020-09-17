@@ -21,7 +21,7 @@ from rasterio.io import MemoryFile
 
 LOGGER = logging.getLogger(__name__)
 
-ES_INDEX = 'geomet-data-registry-tileindex-ip'
+ES_INDEX = 'geomet-data-registry'
 DATE_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
 #initalize dictionary to return and generic metadata
