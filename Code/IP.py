@@ -130,7 +130,6 @@ def reproject_line(geojson_path, raster_path):
             y = point[0]
 
             to_return.append(reproject(x, y, inputSRS_wkt, raster_path))
-    print(to_return)
     return to_return
 
 def reproject_poly(geojson_path, raster_path):
@@ -154,7 +153,6 @@ def reproject_poly(geojson_path, raster_path):
 
                 ret.append(reproject(x, y, inputSRS_wkt, raster_path))
     to_return.append(ret)
-    print(to_return)
     return to_return
     
 #get the value at a specific input point in a point query
@@ -423,7 +421,6 @@ if __name__ == '__main__':
     for element in result:
         raster_list.append(element["filepath"])
         forecast_hours.append(element["forecast_hour"])
-    print(raster_list)
     #get polygon/line/point to clip
     geoJSON_path = sys.argv[4]
     
