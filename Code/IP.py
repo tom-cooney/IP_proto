@@ -1,14 +1,11 @@
-from datetime import datetime
+
+
+
+import click
 import json
 import logging
-import os
-import re
-import sys
-import tempfile
 
 from elasticsearch import Elasticsearch, exceptions
-import fiona
-from fiona import transform
 import numpy as np
 from osgeo import gdal, osr
 from pyproj import Transformer
