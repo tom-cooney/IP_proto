@@ -125,6 +125,7 @@ def reproject_line(geojson_path, raster_path):
             y = point[0]
 
             to_return.append(reproject(x, y, inputSRS_wkt, raster_path))
+    print(to_return)
     return to_return
 
 def reproject_poly(geojson_path, raster_path):
