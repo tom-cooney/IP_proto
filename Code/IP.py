@@ -1,9 +1,10 @@
-
-
-
-import click
+from datetime import datetime
 import json
 import logging
+import os
+import re
+import sys
+import tempfile
 
 from elasticsearch import Elasticsearch, exceptions
 import numpy as np
