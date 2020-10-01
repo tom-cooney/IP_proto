@@ -1,0 +1,41 @@
+{
+
+        "inputs": [{
+                "id": "model",
+                "value": 
+                "HRDPS"
+            },
+            {
+                "id": "forecast_hours_",
+                "value": "2020-09-16T02:00:00Z"
+            },
+            {
+                "id": "model_run",
+                "value": "2020-09-16T00:00:00Z"
+            },
+            {
+                "id": "input_geojson",
+                "value": {
+   "type": "FeatureCollection",
+   "crs": {
+      "type": "EPSG",
+      "properties": { 
+         "code": 4326,
+         "coordinate_order": [1, 0]
+      }
+    },
+   "features": [
+       {
+           "type": "Feature",
+           "id": "id0",
+           "geometry": {
+               "type": "Point",
+               "coordinates": [
+                   -100.0, 45.0
+               ]
+           }
+       }
+   ]
+}
+            }]
+}
